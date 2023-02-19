@@ -25,3 +25,44 @@ The following dependencies are required to run this project:
 * pandas
 * matplotlib
 * sklearn
+
+## Model
+My model is a 3-layer model. 
+The first layer constructs a bidirectional LSTM model with two layers, followed by activation and dropout functions.
+The second layer is a linear function, followed by activation and dropout functions.
+The third layer is a linear function, followed by an activation function.
+```sh
+class Model(torch.nn.Module):
+    def __init__(self, inputs_size, hidden_size, outputs_size):
+        super(Model, self).__init__()
+        self.lstm = torch.nn.LSTM(inputs_size, hidden_size, num_layers=2, batch_first=True, dropout=0.2,
+                                  bidirectional=True)
+        self.fc = torch.nn.Linear(hidden_size * 2, hidden_size)
+        self.predict = torch.nn.Linear(hidden_size, outputs_size)
+        self.activation = torch.nn.ReLU()
+        self.dropout = torch.nn.Dropout(0.1)
+
+    def lstm_forward(self, inputs):  # torch.Size([B, 30, 5])
+        outputs, (h_n, c_n) = self.lstm(inputs)  # torch.Size([B, 30, 128])
+        return outputs[:, -1, :]  # torch.Size([B, 128])
+
+    def forward(self, inputs):  # torch.Size([B, 30, 5])
+        outputs = self.lstm_forward(inputs)  # torch.Size([B, 128])
+        outputs = self.activation(outputs)  # torch.Size([B, 128])
+        outputs = self.dropout(outputs)  # torch.Size([B, 128])
+
+        outputs = self.fc(outputs)  # torch.Size([B, 4])
+        outputs = self.activation(outputs)  # torch.Size([B, 4])
+        outputs = self.dropout(outputs)  # torch.Size([B, 128])
+
+        outputs = self.predict(outputs)  # torch.Size([B, 4])
+        outputs = self.activation(outputs)  # torch.Size([B, 4])
+
+        return outputs
+```
+
+## Results 
+![img]()
+
+
+
