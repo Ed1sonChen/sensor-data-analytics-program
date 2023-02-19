@@ -21,8 +21,6 @@ The second layer is a linear function, followed by activation and dropout functi
 The third layer is a linear function, followed by an activation function.
 '''
 
-
-
 def load_data(seed=98):
     data_set_train = np.load("simu_20000_0.1_90_140_train.npy")
     x1 = data_set_train[..., 0:1000:20]
