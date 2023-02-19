@@ -22,8 +22,7 @@ Train a model using one objective on one dataset with one test environment. For 
 ### Dependencies
 The following dependencies are required to run this project:
 * numpy
-* pandas
-* matplotlib
+* pytorch
 * sklearn
 
 ## Model
