@@ -11,14 +11,14 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 '''
-数据处理
-传感器数据每隔20个点获取一个数据，加上H+R+S+D四维数据，一共54维度数据作为模型的输入，S+D作为模型的拟合目标，
-将训练数据和测试数据做标准化处理，然后训练集用于模型训练，测试集用于模型验证。
+Data Preprocessing:
+The sensor data is collected every 20 points, and the input to the model consists of 54 dimensions, which includes the H+R+S+D data along with the sensor data. The S+D data is used as the target for the model fitting.
+Both the training and testing data are standardized before using them for model training and validation, respectively. The training data is used to train the model, while the testing data is used to validate the model.
 
-模型构建
-第一层构建带有2层的双向lstm模型，后接激活函数和失活函数
-第二层是线性函数，后接激活函数和失活函数；
-第三层是线性函数，后接激活函数
+Model
+The first layer constructs a bidirectional LSTM model with two layers, followed by activation and dropout functions.
+The second layer is a linear function, followed by activation and dropout functions.
+The third layer is a linear function, followed by an activation function.
 '''
 
 
@@ -89,10 +89,10 @@ def train(mod="train", seed=100):
     out_size = 2
     lr = 0.001
     batch_size = 1024
-    X_train, X_test, y_train, y_test, X_eval, y_eval = load_data(seed=seed)  # 读取数据
-    train_dataset = TensorDataset(torch.tensor(X_train).float(), torch.tensor(y_train).float())  # 训练数据集
-    test_dataset = TensorDataset(torch.tensor(X_test).float(), torch.tensor(y_test).float())  # 测试数据集
-    eval_dataset = TensorDataset(torch.tensor(X_eval).float(), torch.tensor(y_eval).float())  # 测试数据集
+    X_train, X_test, y_train, y_test, X_eval, y_eval = load_data(seed=seed)  # read data
+    train_dataset = TensorDataset(torch.tensor(X_train).float(), torch.tensor(y_train).float())  # trainning 
+    test_dataset = TensorDataset(torch.tensor(X_test).float(), torch.tensor(y_test).float())  # testing
+    eval_dataset = TensorDataset(torch.tensor(X_eval).float(), torch.tensor(y_eval).float())  # testing
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True, drop_last=False)
     eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, drop_last=False)
