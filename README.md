@@ -62,7 +62,15 @@ class Model(torch.nn.Module):
 ```
 
 ## Results 
-![img]()
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp.png)
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp.png)
+
+## Findings
+The training speed of linear models is very fast, and the prediction speed is also very fast. This type of model can be applied to very large datasets and is effective for sparse data. However, the ability of linear models is limited to linear functions. They cannot understand the interaction between any two input variables and cannot fit nonlinear variables well.
+
+LSTM improves the long-term dependency problem that exists in RNNs (Recurrent Neural Networks). LSTM performs better than time-recursive neural networks and hidden Markov models (HMMs). As a nonlinear model, LSTM can be used as a complex nonlinear unit to construct larger deep neural networks.
+
+LSTM preserves important features using various gate functions, which can effectively alleviate the gradient vanishing or exploding problems that may occur in long sequence problems. Although this phenomenon cannot be completely eliminated, LSTM performs better than linear models on longer sequence problems. With its nonlinear characteristics, LSTM can better fit multidimensional data, and matching the scale of the LSTM model and the dataset can improve data fitting.
 
 
 
