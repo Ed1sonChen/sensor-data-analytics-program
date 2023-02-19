@@ -1,0 +1,13 @@
+data.npy filter=lfs diff=lfs merge=lfs -text
+main_plot.py filter=lfs diff=lfs merge=lfs -text
+simu_20000_0.1_90_140_train.npy filter=lfs diff=lfs merge=lfs -text
+utils.py filter=lfs diff=lfs merge=lfs -text
+readme.txt filter=lfs diff=lfs merge=lfs -text
+simu_10000_0.1_141_178_test.npy filter=lfs diff=lfs merge=lfs -text
+sp.png filter=lfs diff=lfs merge=lfs -text
+2rd[[:space:]]version.py filter=lfs diff=lfs merge=lfs -text
+D.png filter=lfs diff=lfs merge=lfs -text
+S.png filter=lfs diff=lfs merge=lfs -text
+best.pt filter=lfs diff=lfs merge=lfs -text
+dp.png filter=lfs diff=lfs merge=lfs -text
+view_data.py filter=lfs diff=lfs merge=lfs -text
