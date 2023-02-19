@@ -16,9 +16,6 @@ If you choose to perform supervised training, please use the train data set (_tr
 ### Download
 Some datasets require downloads in order to be used. All the files can be downloaded [here](https://www.dropbox.com/sh/kpiit4ly8l47mo4/AACqFLwGjgcOhyr6GN-669PZa?dl=0).
 
-### Train a model
-Train a model using one objective on one dataset with one test environment. For data that requires a download, you need to provide the path to the data directory with `--data_path`.
-
 ### Dependencies
 The following dependencies are required to run this project:
 * numpy
