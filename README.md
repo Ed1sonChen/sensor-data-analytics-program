@@ -63,6 +63,38 @@ I made some mistakes when I preprocessing the dataset which resulted in some dat
 ![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp2.png)
 ![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp2.png)
 
+## Problems
+When I was trying to preprocessing the dataset, I made some mistakes that lead to data leaks.
+
+```
+def load_data(seed=98):
+    data_set_train = np.load("/content/drive/MyDrive/best/simu_20000_0.1_90_140_train.npy")
+    x1 = data_set_train[..., 0:1000:20]
+    x2 = data_set_train[..., 1002:]
+    y_train = data_set_train[:, -2:]
+
+    data_set_eval = np.load("/content/drive/MyDrive/best/simu_10000_0.1_141_178_test.npy")
+    x3 = data_set_eval[..., 0:1000:20]
+    x4 = data_set_eval[..., 1002:]
+    y_eval = data_set_eval[:, -2:]
+
+    X_train = np.concatenate([x1, x2], axis=1)
+    X_eval = np.concatenate([x3, x4], axis=1)
+
+    SCALER = StandardScaler()
+    SCALER.fit(X_train)
+    X_train = SCALER.transform(X_train)
+    X_eval = SCALER.transform(X_eval)
+
+    X_train = np.expand_dims(X_train, axis=1)
+    X_eval = np.expand_dims(X_eval, axis=1)
+
+    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.01, random_state=seed, shuffle=True)
+
+    print(X_train.shape, X_test.shape, y_train.shape, y_test.shape, X_eval.shape, y_eval.shape)
+    return X_train, X_test, y_train, y_test, X_eval, y_eval
+
+```
 ## Findings
 I tried linear models first. The training speed of linear models is very fast, and the prediction speed is also very fast. This type of model can be applied to very large datasets and is effective for sparse data. However, the ability of linear models is limited to linear functions. They cannot understand the interaction between any two input variables and cannot fit nonlinear variables well.
 
