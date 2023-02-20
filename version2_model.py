@@ -35,18 +35,17 @@ def load_data(seed=98):
     y_eval = data_set_eval[:, -2:]
     y_train = data_set_train[:, -2:]
 
-    X = np.concatenate([X_train, X_eval], axis=0)
     SCALER = StandardScaler()
-    SCALER.fit(X)
+    SCALER.fit(X_train)
     X_train = SCALER.transform(X_train)
     X_eval = SCALER.transform(X_eval)
 
     X_train = np.expand_dims(X_train, axis=1)
     X_eval = np.expand_dims(X_eval, axis=1)
 
-
     X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.01, random_state=seed,
                                                         shuffle=True)
+
     print(X_train.shape, X_test.shape, y_train.shape, y_test.shape, X_eval.shape, y_eval.shape)
     return X_train, X_test, y_train, y_test, X_eval, y_eval
 
