@@ -59,6 +59,7 @@ class Model(torch.nn.Module):
 
 ## Results 
 I made some mistakes when I preprocessing the dataset which resulted in some data leakage problems. Blow are the results after I correct the problem. And I'm now trying to modify the model to achieve a low mse.
+
 ![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp2.png)
 ![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp2.png)
 
