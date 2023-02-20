@@ -58,8 +58,9 @@ class Model(torch.nn.Module):
 ```
 
 ## Results 
-![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp.png)
-![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp.png)
+I made some mistakes when I preprocessing the dataset which resulted in some data leakage problems. Blow are the results after I correct the problem. And I'm now trying to modify the model to achieve a low mse.
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp2.png)
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp2.png)
 
 ## Findings
 I tried linear models first. The training speed of linear models is very fast, and the prediction speed is also very fast. This type of model can be applied to very large datasets and is effective for sparse data. However, the ability of linear models is limited to linear functions. They cannot understand the interaction between any two input variables and cannot fit nonlinear variables well.
