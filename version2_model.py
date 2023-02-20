@@ -21,19 +21,20 @@ The second layer is a linear function, followed by activation and dropout functi
 The third layer is a linear function, followed by an activation function.
 '''
 
+
 def load_data(seed=98):
     data_set_train = np.load("simu_20000_0.1_90_140_train.npy")
     x1 = data_set_train[..., 0:1000:20]
     x2 = data_set_train[..., 1002:]
+    y_train = data_set_train[:, -2:]
 
     data_set_eval = np.load("simu_10000_0.1_141_178_test.npy")
     x3 = data_set_eval[..., 0:1000:20]
     x4 = data_set_eval[..., 1002:]
+    y_eval = data_set_eval[:, -2:]
 
     X_train = np.concatenate([x1, x2], axis=1)
     X_eval = np.concatenate([x3, x4], axis=1)
-    y_eval = data_set_eval[:, -2:]
-    y_train = data_set_train[:, -2:]
 
     SCALER = StandardScaler()
     SCALER.fit(X_train)
@@ -43,11 +44,11 @@ def load_data(seed=98):
     X_train = np.expand_dims(X_train, axis=1)
     X_eval = np.expand_dims(X_eval, axis=1)
 
-    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.01, random_state=seed,
-                                                        shuffle=True)
+    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.01, random_state=seed, shuffle=True)
 
     print(X_train.shape, X_test.shape, y_train.shape, y_test.shape, X_eval.shape, y_eval.shape)
     return X_train, X_test, y_train, y_test, X_eval, y_eval
+
 
 
 class Model(torch.nn.Module):
