@@ -63,6 +63,10 @@ I made some mistakes when I preprocessing the dataset which resulted in some dat
 ![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp2.png)
 ![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp2.png)
 
+model3
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp4.png)
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp4.png)
+
 ## Problems
 When I was trying to preprocessing the dataset, I made some mistakes that lead to data leaks.
 
