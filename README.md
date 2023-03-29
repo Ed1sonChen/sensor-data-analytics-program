@@ -31,12 +31,13 @@ The third layer is a linear function, followed by an activation function.
 class Model(torch.nn.Module):
     def __init__(self, inputs_size, hidden_size, outputs_size):
         super(Model, self).__init__()
-        self.lstm = torch.nn.LSTM(inputs_size, hidden_size, num_layers=2, batch_first=True, dropout=0.2,
+        self.lstm = torch.nn.LSTM(inputs_size, hidden_size, num_layers=3, batch_first=True, dropout=0.1,
                                   bidirectional=True)
-        self.fc = torch.nn.Linear(hidden_size * 2, hidden_size)
-        self.predict = torch.nn.Linear(hidden_size, outputs_size)
-        self.activation = torch.nn.ReLU()
-        self.dropout = torch.nn.Dropout(0.1)
+        self.fc1 = torch.nn.Linear(hidden_size * 2, hidden_size)
+        self.fc2 = torch.nn.Linear(hidden_size, hidden_size // 2)
+        self.predict = torch.nn.Linear(hidden_size // 2, outputs_size)
+        self.activation = torch.nn.LeakyReLU()
+        self.dropout = torch.nn.Dropout(0.05)
 
     def lstm_forward(self, inputs):  # torch.Size([B, 30, 5])
         outputs, (h_n, c_n) = self.lstm(inputs)  # torch.Size([B, 30, 128])
@@ -47,47 +48,20 @@ class Model(torch.nn.Module):
         outputs = self.activation(outputs)  # torch.Size([B, 128])
         outputs = self.dropout(outputs)  # torch.Size([B, 128])
 
-        outputs = self.fc(outputs)  # torch.Size([B, 4])
-        outputs = self.activation(outputs)  # torch.Size([B, 4])
-        outputs = self.dropout(outputs)  # torch.Size([B, 128])
+        outputs = self.fc1(outputs)  # torch.Size([B, 64])
+        outputs = self.activation(outputs)  # torch.Size([B, 64])
+        outputs = self.dropout(outputs)  # torch.Size([B, 64])
+
+        outputs = self.fc2(outputs)  # torch.Size([B, 32])
+        outputs = self.activation(outputs)  # torch.Size([B, 32])
+        outputs = self.dropout(outputs)  # torch.Size([B, 32])
 
         outputs = self.predict(outputs)  # torch.Size([B, 4])
-        outputs = self.activation(outputs)  # torch.Size([B, 4])
 
         return outputs
 ```
 
-```
-class Model(torch.nn.Module):
-    def __init__(self, inputs_size, hidden_size, outputs_size):
-        super(Model, self).__init__()
-        self.lstm = torch.nn.LSTM(inputs_size, hidden_size, num_layers=4, batch_first=True, dropout=0.1,
-                                  bidirectional=True)
-        self.bn = torch.nn.BatchNorm1d(hidden_size * 2)
-        self.fc = torch.nn.Linear(hidden_size * 2, hidden_size)
-        self.predict = torch.nn.Linear(hidden_size, outputs_size)
-        self.activation = torch.nn.ReLU()
-        self.dropout = torch.nn.Dropout(0.2)
 
-    def lstm_forward(self, inputs):  # torch.Size([B, 30, 5])
-        outputs, (h_n, c_n) = self.lstm(inputs)  # torch.Size([B, 30, 256])
-        return outputs[:, -1, :]  # torch.Size([B, 256])
-
-    def forward(self, inputs):  # torch.Size([B, 30, 5])
-        outputs = self.lstm_forward(inputs)  # torch.Size([B, 256])
-        outputs = self.bn(outputs)
-        outputs = self.activation(outputs)  # torch.Size([B, 256])
-        outputs = self.dropout(outputs)  # torch.Size([B, 256])
-
-        outputs = self.fc(outputs)  # torch.Size([B, 128])
-        outputs = self.activation(outputs)  # torch.Size([B, 128])
-        outputs = self.dropout(outputs)  # torch.Size([B, 128])
-
-        outputs = self.predict(outputs)  # torch.Size([B, 4])
-        outputs = self.activation(outputs)  # torch.Size([B, 4])
-
-        return outputs
-```
 
 ## Results 
 ![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp2.png)
