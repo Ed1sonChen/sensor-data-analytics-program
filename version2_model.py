@@ -10,44 +10,37 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-'''
-Data Preprocessing:
-The sensor data is collected every 20 points, and the input to the model consists of 54 dimensions, which includes the H+R+S+D data along with the sensor data. The S+D data is used as the target for the model fitting.
-Both the training and testing data are standardized before using them for model training and validation, respectively. The training data is used to train the model, while the testing data is used to validate the model.
-
-Model
-The first layer constructs a bidirectional LSTM model with two layers, followed by activation and dropout functions.
-The second layer is a linear function, followed by activation and dropout functions.
-The third layer is a linear function, followed by an activation function.
-'''
-
 def load_data(seed=98):
     data_set_train = np.load("simu_20000_0.1_90_140_train.npy")
     x1 = data_set_train[..., 0:1000:20]
     x2 = data_set_train[..., 1002:]
-    y_train = data_set_train[:, -2:]
 
     data_set_eval = np.load("simu_10000_0.1_141_178_test.npy")
     x3 = data_set_eval[..., 0:1000:20]
     x4 = data_set_eval[..., 1002:]
-    y_eval = data_set_eval[:, -2:]
 
     X_train = np.concatenate([x1, x2], axis=1)
     X_eval = np.concatenate([x3, x4], axis=1)
+    y_eval = data_set_eval[:, -2:]
+    y_train = data_set_train[:, -2:]
 
-    SCALER = StandardScaler()
-    SCALER.fit(X_train)
-    X_train = SCALER.transform(X_train)
-    X_eval = SCALER.transform(X_eval)
+    # Split the training data into training and validation sets
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=seed)
+
+    # Fit StandardScaler to the training set only
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+
+    # Transform the training, validation, and evaluation sets using the scaler fit to the training set
+    X_train = scaler.transform(X_train)
+    X_val = scaler.transform(X_val)
+    X_eval = scaler.transform(X_eval)
 
     X_train = np.expand_dims(X_train, axis=1)
+    X_val = np.expand_dims(X_val, axis=1)
     X_eval = np.expand_dims(X_eval, axis=1)
 
-    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.01, random_state=seed, shuffle=True)
-
-    print(X_train.shape, X_test.shape, y_train.shape, y_test.shape, X_eval.shape, y_eval.shape)
-    return X_train, X_test, y_train, y_test, X_eval, y_eval
-
+    return X_train, X_val, y_train, y_val, X_eval, y_eval
 
 
 class Model(torch.nn.Module):
