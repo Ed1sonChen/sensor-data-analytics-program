@@ -19,28 +19,25 @@ def load_data(seed=98):
     x3 = data_set_eval[..., 0:1000:20]
     x4 = data_set_eval[..., 1002:]
 
-    X_train = np.concatenate([x1, x2], axis=1)
-    X_eval = np.concatenate([x3, x4], axis=1)
+    X_train = np.concatenate([x1, x2[..., :-2]], axis=1)
+    X_eval = np.concatenate([x3, x4[..., :-2]], axis=1)
     y_eval = data_set_eval[:, -2:]
     y_train = data_set_train[:, -2:]
 
-    # Split the training data into training and validation sets
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=seed)
-
-    # Fit StandardScaler to the training set only
-    scaler = StandardScaler()
-    scaler.fit(X_train)
-
-    # Transform the training, validation, and evaluation sets using the scaler fit to the training set
-    X_train = scaler.transform(X_train)
-    X_val = scaler.transform(X_val)
-    X_eval = scaler.transform(X_eval)
+    X = np.concatenate([X_train, X_eval], axis=0)
+    SCALER = StandardScaler()
+    SCALER.fit(X)
+    X_train = SCALER.transform(X_train)
+    X_eval = SCALER.transform(X_eval)
 
     X_train = np.expand_dims(X_train, axis=1)
-    X_val = np.expand_dims(X_val, axis=1)
     X_eval = np.expand_dims(X_eval, axis=1)
 
-    return X_train, X_val, y_train, y_val, X_eval, y_eval
+
+    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.01, random_state=seed,
+                                                        shuffle=True)
+    print(X_train.shape, X_test.shape, y_train.shape, y_test.shape, X_eval.shape, y_eval.shape)
+    return X_train, X_test, y_train, y_test, X_eval, y_eval
 
 
 class Model(torch.nn.Module):
@@ -81,7 +78,7 @@ def train(mod="train", seed=100):
     hidden_size = 2048
     n_components = 54
     out_size = 2
-    lr = 0.0001
+    lr = 0.001
     batch_size = 128
     X_train, X_test, y_train, y_test, X_eval, y_eval = load_data(seed=seed)  # read data
     train_dataset = TensorDataset(torch.tensor(X_train).float(), torch.tensor(y_train).float())  # trainning 
@@ -94,7 +91,7 @@ def train(mod="train", seed=100):
     loss_counter = 0
     net = Model(n_components, hidden_size, out_size).to(DEVICE)
     optim = torch.optim.AdamW(net.parameters(), lr=lr)
-    criterion = torch.nn.L1Loss()
+    criterion = torch.nn.SmoothL1Loss()
     history = []
     for epoch in range(epoches):
         total_mae = 0
