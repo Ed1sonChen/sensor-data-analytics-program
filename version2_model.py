@@ -19,26 +19,28 @@ def load_data(seed=98):
     x3 = data_set_eval[..., 0:1000:20]
     x4 = data_set_eval[..., 1002:]
 
-    X_train = np.concatenate([x1, x2[..., :-2]], axis=1)
-    X_eval = np.concatenate([x3, x4[..., :-2]], axis=1)
+    X_train = np.concatenate([x1, x2], axis=1)
+    X_eval = np.concatenate([x3, x4], axis=1)
     y_eval = data_set_eval[:, -2:]
     y_train = data_set_train[:, -2:]
 
-    X = np.concatenate([X_train, X_eval], axis=0)
-    SCALER = StandardScaler()
-    SCALER.fit(X)
-    X_train = SCALER.transform(X_train)
-    X_eval = SCALER.transform(X_eval)
+    # Split the training data into training and validation sets
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=seed)
+
+    # Fit StandardScaler to the training set only
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+
+    # Transform the training, validation, and evaluation sets using the scaler fit to the training set
+    X_train = scaler.transform(X_train)
+    X_val = scaler.transform(X_val)
+    X_eval = scaler.transform(X_eval)
 
     X_train = np.expand_dims(X_train, axis=1)
+    X_val = np.expand_dims(X_val, axis=1)
     X_eval = np.expand_dims(X_eval, axis=1)
 
-
-    X_train, X_test, y_train, y_test = train_test_split(X_train, y_train, test_size=0.01, random_state=seed,
-                                                        shuffle=True)
-    print(X_train.shape, X_test.shape, y_train.shape, y_test.shape, X_eval.shape, y_eval.shape)
-    return X_train, X_test, y_train, y_test, X_eval, y_eval
-
+    return X_train, X_val, y_train, y_val, X_eval, y_eval
 
 class Model(torch.nn.Module):
     def __init__(self, inputs_size, hidden_size, outputs_size):
