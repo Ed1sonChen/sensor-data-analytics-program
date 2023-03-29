@@ -77,12 +77,12 @@ class Model(torch.nn.Module):
 
 
 def train(mod="train", seed=100):
-    epoches = 4000
+    epoches = 2000
     hidden_size = 2048
     n_components = 54
     out_size = 2
     lr = 0.0001
-    batch_size = 512
+    batch_size = 128
     X_train, X_test, y_train, y_test, X_eval, y_eval = load_data(seed=seed)  # read data
     train_dataset = TensorDataset(torch.tensor(X_train).float(), torch.tensor(y_train).float())  # trainning 
     test_dataset = TensorDataset(torch.tensor(X_test).float(), torch.tensor(y_test).float())  # testing
@@ -94,7 +94,7 @@ def train(mod="train", seed=100):
     loss_counter = 0
     net = Model(n_components, hidden_size, out_size).to(DEVICE)
     optim = torch.optim.AdamW(net.parameters(), lr=lr)
-    criterion = torch.nn.MSELoss()
+    criterion = torch.nn.L1Loss()
     history = []
     for epoch in range(epoches):
         total_mae = 0
