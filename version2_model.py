@@ -46,12 +46,13 @@ def load_data(seed=98):
 class Model(torch.nn.Module):
     def __init__(self, inputs_size, hidden_size, outputs_size):
         super(Model, self).__init__()
-        self.lstm = torch.nn.LSTM(inputs_size, hidden_size, num_layers=2, batch_first=True, dropout=0.2,
+        self.lstm = torch.nn.LSTM(inputs_size, hidden_size, num_layers=3, batch_first=True, dropout=0.1,
                                   bidirectional=True)
-        self.fc = torch.nn.Linear(hidden_size * 2, hidden_size)
-        self.predict = torch.nn.Linear(hidden_size, outputs_size)
-        self.activation = torch.nn.ReLU()
-        self.dropout = torch.nn.Dropout(0.1)
+        self.fc1 = torch.nn.Linear(hidden_size * 2, hidden_size)
+        self.fc2 = torch.nn.Linear(hidden_size, hidden_size // 2)
+        self.predict = torch.nn.Linear(hidden_size // 2, outputs_size)
+        self.activation = torch.nn.LeakyReLU()
+        self.dropout = torch.nn.Dropout(0.05)
 
     def lstm_forward(self, inputs):  # torch.Size([B, 30, 5])
         outputs, (h_n, c_n) = self.lstm(inputs)  # torch.Size([B, 30, 128])
@@ -62,22 +63,25 @@ class Model(torch.nn.Module):
         outputs = self.activation(outputs)  # torch.Size([B, 128])
         outputs = self.dropout(outputs)  # torch.Size([B, 128])
 
-        outputs = self.fc(outputs)  # torch.Size([B, 4])
-        outputs = self.activation(outputs)  # torch.Size([B, 4])
-        outputs = self.dropout(outputs)  # torch.Size([B, 128])
+        outputs = self.fc1(outputs)  # torch.Size([B, 64])
+        outputs = self.activation(outputs)  # torch.Size([B, 64])
+        outputs = self.dropout(outputs)  # torch.Size([B, 64])
+
+        outputs = self.fc2(outputs)  # torch.Size([B, 32])
+        outputs = self.activation(outputs)  # torch.Size([B, 32])
+        outputs = self.dropout(outputs)  # torch.Size([B, 32])
 
         outputs = self.predict(outputs)  # torch.Size([B, 4])
-        outputs = self.activation(outputs)  # torch.Size([B, 4])
 
         return outputs
 
 
 def train(mod="train", seed=100):
-    epoches = 2000
-    hidden_size = 1024
+    epoches = 5000
+    hidden_size = 2048
     n_components = 54
     out_size = 2
-    lr = 0.001
+    lr = 0.0001
     batch_size = 1024
     X_train, X_test, y_train, y_test, X_eval, y_eval = load_data(seed=seed)  # read data
     train_dataset = TensorDataset(torch.tensor(X_train).float(), torch.tensor(y_train).float())  # trainning 
