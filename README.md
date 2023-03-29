@@ -64,8 +64,8 @@ class Model(torch.nn.Module):
 
 
 ## Results 
-![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp2.png)
-![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp2.png)
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/dp.png)
+![img](https://github.com/Ed1sonChen/sensor-data-analytics-program/blob/master/sp.png)
 
 ## Problems
 When I was trying to preprocessing the dataset, I made some mistakes that lead to data leaks.
