@@ -72,13 +72,13 @@ When I was trying to preprocessing the dataset, I made some mistakes that lead t
 
 ```
 def load_data(seed=98):
-    data_set_train = np.load("simu_20000_0.1_90_140_train.npy")
+    data_set_train = np.load("/content/drive/MyDrive/sim_data/simu_20000_0.1_90_140_train.npy")
     x1 = data_set_train[..., 0:1000:20]
-    x2 = data_set_train[..., 1002:]
+    x2 = data_set_train[..., 1000:1002]  # exclude label columns
 
-    data_set_eval = np.load("simu_10000_0.1_141_178_test.npy")
+    data_set_eval = np.load("/content/drive/MyDrive/sim_data/simu_10000_0.1_141_178_test.npy")
     x3 = data_set_eval[..., 0:1000:20]
-    x4 = data_set_eval[..., 1002:]
+    x4 = data_set_eval[..., 1000:1002]  # exclude label columns
 
     X_train = np.concatenate([x1, x2], axis=1)
     X_eval = np.concatenate([x3, x4], axis=1)
