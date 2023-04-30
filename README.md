@@ -24,41 +24,42 @@ The following dependencies are required to run this project:
 
 ## Model
 My model is a 3-layer model. 
-The first layer constructs a bidirectional LSTM model with two layers, followed by activation and dropout functions.
-The second layer is a linear function, followed by activation and dropout functions.
-The third layer is a linear function, followed by an activation function.
+The first layer builds a bidirectional lstm model with 2 layers, followed by activation and deactivation functions
+The second layer is a linear function, followed by an activation function and a deactivation function;
+The third layer is a linear function, followed by an activation function
 ```sh
 class Model(torch.nn.Module):
+
     def __init__(self, inputs_size, hidden_size, outputs_size):
         super(Model, self).__init__()
-        self.lstm = torch.nn.LSTM(inputs_size, hidden_size, num_layers=3, batch_first=True, dropout=0.1,
-                                  bidirectional=True)
-        self.fc1 = torch.nn.Linear(hidden_size * 2, hidden_size)
-        self.fc2 = torch.nn.Linear(hidden_size, hidden_size // 2)
-        self.predict = torch.nn.Linear(hidden_size // 2, outputs_size)
-        self.activation = torch.nn.LeakyReLU()
-        self.dropout = torch.nn.Dropout(0.05)
+        self.hidden_size = hidden_size
+        self.lstm = torch.nn.GRU(input_size=inputs_size, hidden_size=hidden_size, num_layers=2, batch_first=True)
+        self.linear = torch.nn.Linear(hidden_size, outputs_size)
+        self.dropout1 = torch.nn.Dropout(0.1)
+        self.dropout2 = torch.nn.Dropout(0.1)
+        self.activation = torch.nn.ReLU()
+        self.bc = torch.nn.BatchNorm1d(hidden_size)
 
-    def lstm_forward(self, inputs):  # torch.Size([B, 30, 5])
-        outputs, (h_n, c_n) = self.lstm(inputs)  # torch.Size([B, 30, 128])
-        return outputs[:, -1, :]  # torch.Size([B, 128])
+    def attention_forward(self, x, query):
+        d_k = query.shape[-1]
+        scores = torch.matmul(query, x.transpose(1, 2)) / math.sqrt(d_k)
+        alpha_n = F.softmax(scores, dim=-1)
+        outputs = torch.matmul(alpha_n, x).sum(dim=1)
+        return outputs, alpha_n
 
-    def forward(self, inputs):  # torch.Size([B, 30, 5])
-        outputs = self.lstm_forward(inputs)  # torch.Size([B, 128])
-        outputs = self.activation(outputs)  # torch.Size([B, 128])
-        outputs = self.dropout(outputs)  # torch.Size([B, 128])
-
-        outputs = self.fc1(outputs)  # torch.Size([B, 64])
-        outputs = self.activation(outputs)  # torch.Size([B, 64])
-        outputs = self.dropout(outputs)  # torch.Size([B, 64])
-
-        outputs = self.fc2(outputs)  # torch.Size([B, 32])
-        outputs = self.activation(outputs)  # torch.Size([B, 32])
-        outputs = self.dropout(outputs)  # torch.Size([B, 32])
-
-        outputs = self.predict(outputs)  # torch.Size([B, 4])
-
+    def lstm_forward(self, inputs):
+        outputs, (h_n, c_n) = self.lstm(inputs)
+        outputs, _ = self.attention_forward(outputs, self.dropout1(outputs))
         return outputs
+
+    def forward(self, x):
+        output = self.lstm_forward(x)
+        output = output.reshape(-1, self.hidden_size)
+        output = self.bc(output)
+        output = self.activation(output)
+        output = self.dropout2(output)
+        out = self.linear(output)
+        return out
 ```
 
 
@@ -74,34 +75,30 @@ When I was trying to preprocessing the dataset, I made some mistakes that lead t
 def load_data(seed=98):
     data_set_train = np.load("/content/drive/MyDrive/sim_data/simu_20000_0.1_90_140_train.npy")
     x1 = data_set_train[..., 0:1000:20]
-    x2 = data_set_train[..., 1000:1002]  # exclude label columns
+    x2 = data_set_train[..., 1002:]
 
-    data_set_eval = np.load("/content/drive/MyDrive/sim_data/simu_10000_0.1_141_178_test.npy")
-    x3 = data_set_eval[..., 0:1000:20]
-    x4 = data_set_eval[..., 1000:1002]  # exclude label columns
+    data_set_test = np.load("/content/drive/MyDrive/sim_data/simu_10000_0.1_141_178_test.npy")
+    x3 = data_set_test[..., 0:1000:20]
+    x4 = data_set_test[..., 1002:]
 
     X_train = np.concatenate([x1, x2], axis=1)
-    X_eval = np.concatenate([x3, x4], axis=1)
-    y_eval = data_set_eval[:, -2:]
+    X_test = np.concatenate([x3, x4], axis=1)
+    X_train = X_train[:, :]
+    X_test = X_test[:, :]
+    y_test = data_set_test[:, -2:]
     y_train = data_set_train[:, -2:]
 
-    # Split the training data into training and validation sets
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=seed)
-
-    # Fit StandardScaler to the training set only
-    scaler = StandardScaler()
-    scaler.fit(X_train)
-
-    # Transform the training, validation, and evaluation sets using the scaler fit to the training set
-    X_train = scaler.transform(X_train)
-    X_val = scaler.transform(X_val)
-    X_eval = scaler.transform(X_eval)
-
+    SCALER = MinMaxScaler()
+    SCALER.fit(X_train)
+    X_train = SCALER.transform(X_train)
+    X_test = SCALER.transform(X_test)
     X_train = np.expand_dims(X_train, axis=1)
-    X_val = np.expand_dims(X_val, axis=1)
-    X_eval = np.expand_dims(X_eval, axis=1)
-
-    return X_train, X_val, y_train, y_val, X_eval, y_eval
+    X_test = np.expand_dims(X_test, axis=1)
+    # Here, the training set can be divided into training set and verification set according to 90% and 10%. For faster training, there is no division
+    # X_train, X_eval, y_train, y_eval = train_test_split(X_train, y_train, test_size=0.09, random_state=seed,
+    #                                                     shuffle=True)
+    # print(X_train.shape, X_test.shape, y_train.shape, y_test.shape, X_eval.shape, y_eval.shape)
+    return X_train, X_test, y_train, y_test
 
 ```
 ## Findings
